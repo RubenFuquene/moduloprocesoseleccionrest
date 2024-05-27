@@ -17,6 +17,10 @@ public class DisciplinaService {
 
 	@Transactional(readOnly = true)
     public List<Disciplina> getAllDisciplinas() {
-        return disciplinaRepository.findAll();
+        return disciplinaRepository.findAllDisciplinas();
+    }
+	
+	public Disciplina findByPerfilId(String idPerfil) {
+        return disciplinaRepository.findByPerfilId(idPerfil);
     }
 }

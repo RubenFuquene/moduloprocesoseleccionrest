@@ -30,4 +30,7 @@ public interface RequerimientoRepository extends JpaRepository<Requerimiento, Lo
 	
 	@Query(value = "SELECT * FROM REQUERIMIENTO WHERE EMP_CONDEMPLEADO = :empCondEmpleado", nativeQuery = true)
     List<Requerimiento> findByEmpCondEmpleado(@Param("empCondEmpleado") String empCondEmpleado);
+	
+	@Query(value = "SELECT * FROM REQUERIMIENTO WHERE CONSECREQUERIMIENTO = (SELECT MAX(r.CONSECREQUERIMIENTO) FROM REQUERIMIENTO r)", nativeQuery = true)
+    Requerimiento findLastInsertedRequerimiento();
 }

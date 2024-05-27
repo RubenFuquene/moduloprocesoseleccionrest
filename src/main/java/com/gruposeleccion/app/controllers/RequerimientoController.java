@@ -10,7 +10,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.gruposeleccion.app.models.PerfilFase;
+import com.gruposeleccion.app.models.PerfilFaseId;
+import com.gruposeleccion.app.models.ProcesoRequerimiento;
+import com.gruposeleccion.app.models.ProcesoRequerimientoId;
 import com.gruposeleccion.app.models.Requerimiento;
+import com.gruposeleccion.app.services.PerfilFaseService;
+import com.gruposeleccion.app.services.ProcesoRequerimientoService;
 import com.gruposeleccion.app.services.RequerimientoService;
 
 @RestController
@@ -18,10 +24,16 @@ import com.gruposeleccion.app.services.RequerimientoService;
 public class RequerimientoController {
 	@Autowired
     private RequerimientoService requerimientoService;
+	
+	@Autowired
+	private ProcesoRequerimientoService procesoRequerimientoService;
+	
+	@Autowired
+	private PerfilFaseService perfilFaseService;
 
     @PostMapping
     public Requerimiento createRequerimiento(@RequestBody Requerimiento request) {
-        return requerimientoService.createRequerimiento(
+        Requerimiento newRequerimiento = requerimientoService.createRequerimiento(
         		request.getEmpleado().getCondEmpleado(),
         		request.getEmpleadoSeleccionado().getCondEmpleado(),
     			request.getSalarioMax(),
@@ -29,6 +41,30 @@ public class RequerimientoController {
 				request.getDesFuncion(),
 				request.getDescCarreras(),
 				request.getnVacantes());
+        
+        ProcesoRequerimiento procesoRequerimiento = new ProcesoRequerimiento();
+        
+        PerfilFaseId perfilFaseId = new PerfilFaseId("0", "01");
+        PerfilFase perfilFase = new PerfilFase();
+        perfilFase.setId(perfilFaseId);
+        perfilFaseService.guardarPerfilFase(perfilFase);
+        
+        ProcesoRequerimientoId id = new ProcesoRequerimientoId();
+        id.setConsecRequerimiento(newRequerimiento.getConsecrequerimiento());
+        id.setIdFase(perfilFaseId.getIdFase());
+        id.setIdPerfil(perfilFaseId.getIdPerfil());
+
+        procesoRequerimiento.setId(id);
+        procesoRequerimiento.setPerfilFase(perfilFase);
+        procesoRequerimiento.setCondEmpleado(newRequerimiento.getEmpleadoSeleccionado().getCondEmpleado());
+        procesoRequerimiento.setFechaInicio(newRequerimiento.getFechaRequerimiento());
+        procesoRequerimiento.setFechaFin(null);
+        procesoRequerimiento.setConvocatoria(null);
+        procesoRequerimiento.setInvitacion(null);
+        
+        procesoRequerimientoService.guardarProcesoRequerimiento(procesoRequerimiento);
+        
+        return newRequerimiento;
     }
     
     @GetMapping("/asignados/{empCondEmpleado}")

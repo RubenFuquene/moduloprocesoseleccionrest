@@ -1,6 +1,9 @@
 package com.gruposeleccion.app.models;
 
 import java.util.Date;
+import java.util.List;
+
+import com.gruposeleccion.app.repositories.ProcesoRequerimientoRepository;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "REQUERIMIENTO")
@@ -45,6 +49,9 @@ public class Requerimiento {
 
     @Column(name = "NVACANTES")
     private int nVacantes;
+    
+    @Transient
+    public List<ProcesoRequerimiento> procesos;
 
 	public Long getConsecrequerimiento() {
 		return consecrequerimiento;
@@ -117,4 +124,13 @@ public class Requerimiento {
 	public void setnVacantes(int nVacantes) {
 		this.nVacantes = nVacantes;
 	}
+	
+	// Método para obtener procesos asociados a un requerimiento específico
+    public List<ProcesoRequerimiento> getProcesos(ProcesoRequerimientoRepository procesoRequerimientoRepository) {
+        return procesoRequerimientoRepository.findByConsecRequerimiento(this.consecrequerimiento);
+    }
+    
+    public void setProcesos(List<ProcesoRequerimiento> procesos) {
+        this.procesos = procesos;
+    }
 }

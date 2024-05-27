@@ -7,8 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.gruposeleccion.app.models.Empleado;
+import com.gruposeleccion.app.models.ProcesoRequerimiento;
 import com.gruposeleccion.app.models.Requerimiento;
 import com.gruposeleccion.app.repositories.EmpleadoRepository;
+import com.gruposeleccion.app.repositories.ProcesoRequerimientoRepository;
 import com.gruposeleccion.app.repositories.RequerimientoRepository;
 
 import jakarta.transaction.Transactional;
@@ -20,6 +22,9 @@ public class RequerimientoService {
 
     @Autowired
     private EmpleadoRepository empleadoRepository;
+    
+    @Autowired
+    private ProcesoRequerimientoRepository procesoRequerimientoRepository;
 
     @Transactional
     public Requerimiento createRequerimiento(
@@ -61,10 +66,18 @@ public class RequerimientoService {
         		descCarreras,
         		nVacantes);
         
-        return requerimiento;
+        return requerimientoRepository.findLastInsertedRequerimiento();
     }
     
     public List<Requerimiento> findByEmpCondEmpleado(String empCondEmpleado) {
-        return requerimientoRepository.findByEmpCondEmpleado(empCondEmpleado);
+    	List<Requerimiento> requerimientos = requerimientoRepository.findByEmpCondEmpleado(empCondEmpleado);
+        
+        // Itera sobre cada requerimiento para cargar los procesos asociados
+        for (Requerimiento requerimiento : requerimientos) {
+            List<ProcesoRequerimiento> procesos = requerimiento.getProcesos(procesoRequerimientoRepository);
+            requerimiento.setProcesos(procesos);
+        }
+
+        return requerimientos;
     }
 }
